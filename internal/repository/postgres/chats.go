@@ -72,7 +72,7 @@ func (repo *PostgresRepo) GetUserChats(id int) ([]*models.Chat, error) {
 			"ON chats.id=t1.chat) " +
 			"JOIN user_chat_relation ON chats.id=user_chat_relation.chat_id " +
 			"WHERE user_chat_relation.user_id = $1 " +
-			"ORDER BY t1.last_time DESC", id)
+			"ORDER BY t1.last_time", id)
 	if err != nil {
 		log.Println(err)
 		return nil, err
