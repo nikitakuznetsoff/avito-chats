@@ -1,13 +1,13 @@
 package postgres
 
 import (
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 )
 
 type PostgresRepo struct {
-	conn *pgx.Conn 
+	conn *pgxpool.Pool
 }
 
-func CreatePostgresRepo(db *pgx.Conn) *PostgresRepo {
+func CreatePostgresRepo(db *pgxpool.Pool) *PostgresRepo {
 	return &PostgresRepo{conn: db}
 }

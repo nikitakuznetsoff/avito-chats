@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -26,7 +27,7 @@ func (handler *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
 		Users []int	`json:"users"`
 	}{}
 	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err != nil || req.Name == "" || req.Users == nil {
 		http.Error(w, "incorrect request body", http.StatusInternalServerError)
 		return
 	}
@@ -46,15 +47,16 @@ func (handler *Handler) CreateChat(w http.ResponseWriter, r *http.Request) {
 		Name: req.Name,
 		Users: req.Users,
 	}
-	id, err := handler.Repo.CreateChat(chat)
+	id, err := handler.Repo.CreateChat(&chat)
 	if err != nil {
-		http.Error(w, "error in char creation", http.StatusInternalServerError)
+		fmt.Println(err)
+		http.Error(w, "error in chat creation", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(map[string]int{"chat_id": id})
 	if err != nil {
-		http.Error(w, "error in response creation", http.StatusInternalServerError)
+		http.Error(w, "error in creation response", http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -76,7 +78,7 @@ func (handler *Handler) GetChats(w http.ResponseWriter, r *http.Request) {
 
 	req := struct{User int `json:"user"`}{}
 	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err != nil || req.User == 0 {
 		http.Error(w, "incorrect request body", http.StatusBadRequest)
 		return
 	}
@@ -91,7 +93,7 @@ func (handler *Handler) GetChats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := json.Marshal(chats)
+	resp, err := json.Marshal(map[string][]*models.Chat{"chats": chats})
 	if err != nil {
 		http.Error(w, "error in response creation", http.StatusInternalServerError)
 		return

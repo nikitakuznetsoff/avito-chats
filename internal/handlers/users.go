@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 )
@@ -27,6 +28,7 @@ func (handler *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	id, err := handler.Repo.CreateUser(req.Username)
 	if err != nil {
+		fmt.Println(err)
 		http.Error(w, "error in user creation", http.StatusInternalServerError)
 		return
 	}

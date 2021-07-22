@@ -27,24 +27,26 @@ func (handler *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 		Text 	string	`json:"text"`
 	}{}
 	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err != nil || req.Chat == 0 || req.Author == 0 || req.Text == "" {
 		http.Error(w, "incorrect response body", http.StatusInternalServerError)
 		return
 	}
 
 	_, err = handler.Repo.GetChatByID(req.Chat)
 	if err != nil {
-		http.Error(w, "unknown chat id", http.StatusBadRequest)
+		fmt.Println(err)
+		http.Error(w, "database error", http.StatusBadRequest)
 		return
 	}
 
 	_, err = handler.Repo.GetUserByID(req.Author)
 	if err != nil {
-		http.Error(w, "unknown user id", http.StatusBadRequest)
+		fmt.Print(err)
+		http.Error(w, "database error", http.StatusBadRequest)
 		return
 	}
 
-	message := models.Message{
+	message := &models.Message{
 		Chat: req.Chat,
 		Author: req.Author,
 		Text: req.Text,
@@ -52,7 +54,7 @@ func (handler *Handler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	id, err := handler.Repo.SendMessage(message)
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
 
@@ -80,7 +82,7 @@ func (handler *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	req := struct{Chat int `json:"chat"`}{}
 	err = json.Unmarshal(body, &req)
-	if err != nil {
+	if err != nil || req.Chat == 0 {
 		http.Error(w, "incorrect request body", http.StatusBadRequest)
 		return
 	}
@@ -93,11 +95,12 @@ func (handler *Handler) GetMessages(w http.ResponseWriter, r *http.Request) {
 
 	messages, err := handler.Repo.GetChatMessages(req.Chat)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		fmt.Println(err)
+		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
 
-	resp, err := json.Marshal(messages)
+	resp, err := json.Marshal(map[string][]*models.Message{"messages": messages})
 	if err != nil {
 		http.Error(w, "error in response creation", http.StatusInternalServerError)
 		return

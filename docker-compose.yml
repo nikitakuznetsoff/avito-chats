@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: db
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=nick
+      - POSTGRES_PASSWORD=pass
+      - POSTGRES_DB=chatsdb
+    volumes:
+      - './.sql/:/docker-entrypoint-initdb.d/'
+    tty: true
+
+  app:
+    build:
+      context: '.'
+      dockerfile: app.Dockerfile
+    command: "/go/src/github.com/nikitakuznetsoff/avito-chats/bin/chatssapp"
+    tty: true
+    links:
+      - db
+    container_name: chats_app
+    ports:
+      - 9000:9000'

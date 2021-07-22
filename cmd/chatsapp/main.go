@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"log"
 	"net/http"
 	"os"
@@ -14,16 +14,16 @@ import (
 
 const (
 	port = ":9000"
-	dsn = "postgres://nick:pass@localhost:5432/linksdb"
+	dsn = "postgres://nikita:pass@localhost:5432/chatsdb"
 )
 
 func main() {
-	conn, err := pgx.Connect(context.Background(), dsn)
+	conn, err := pgxpool.Connect(context.Background(), dsn)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		os.Exit(1)
 	}
-	defer conn.Close(context.Background())
+	defer conn.Close()
 
 	repo := postgres.CreatePostgresRepo(conn)
 	handler := handlers.Handler{Repo: repo}
