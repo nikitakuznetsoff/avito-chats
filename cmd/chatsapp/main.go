@@ -14,7 +14,7 @@ import (
 
 const (
 	port = ":9000"
-	dsn = "postgres://nikita:pass@localhost:5432/chatsdb"
+	dsn = "postgres://nick:pass@db:5432/chatsdb"
 )
 
 func main() {

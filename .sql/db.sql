@@ -1,4 +1,4 @@
-set time_zone = '+03:00';
+set time zone '+03:00';
 
 drop table if exists messages;
 drop table if exists user_chat_relation;

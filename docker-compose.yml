@@ -17,11 +17,11 @@ services:
   app:
     build:
       context: '.'
-      dockerfile: app.Dockerfile
-    command: "/go/src/github.com/nikitakuznetsoff/avito-chats/bin/chatssapp"
+      dockerfile: Dockerfile
+    command: "/go/src/github.com/nikitakuznetsoff/avito-chats/bin/chatsapp"
     tty: true
     links:
       - db
     container_name: chats_app
     ports:
-      - 9000:9000'
+      - 9000:9000

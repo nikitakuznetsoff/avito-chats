@@ -65,14 +65,14 @@ func (repo *PostgresRepo) GetChatByID(id int) (*models.Chat, error) {
 func (repo *PostgresRepo) GetUserChats(id int) ([]*models.Chat, error) {
 	// Подзапрос для получения времени последнего сообщения в чате
 	// для возможности сортировки по убыванию
-	rows, err := repo.conn.Query(context.Background(),
-		"SELECT chats.id, chats.name, chats.created_at FROM " +
-			"(chats JOIN " +
-				"(SELECT chat, max(created_at) as last_time FROM messages GROUP BY chat) as t1 " +
-			"ON chats.id=t1.chat) " +
-			"JOIN user_chat_relation ON chats.id=user_chat_relation.chat_id " +
-			"WHERE user_chat_relation.user_id = $1 " +
-			"ORDER BY t1.last_time", id)
+	query := "SELECT chats.id, chats.name, chats.created_at FROM " +
+		"(chats LEFT JOIN " +
+			"(SELECT chat, max(created_at) as last_time FROM messages GROUP BY chat) as t1 " +
+		"ON chats.id=t1.chat) " +
+		"JOIN user_chat_relation ON chats.id=user_chat_relation.chat_id " +
+		"WHERE user_chat_relation.user_id = $1 " +
+		"ORDER BY t1.last_time"
+	rows, err := repo.conn.Query(context.Background(), query, id)
 	if err != nil {
 		log.Println(err)
 		return nil, err
